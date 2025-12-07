@@ -458,7 +458,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (timeline) {
                 parts.push(`<div class="section-heading"><i class="fas fa-clock"></i> Timeline</div>`);
-                const timelineHtml = formatTimeline(timeline);
+                let timelineHtml = '';
+                if (Array.isArray(timeline)) {
+                    timelineHtml = timeline.map(t => escapeHtml(formatListItem(t))).join('<br>');
+                } else if (typeof timeline === 'object') {
+                    timelineHtml = escapeHtml(formatListItem(timeline)).replace(/\n/g, '<br>');
+                } else {
+                    timelineHtml = escapeHtml(String(timeline)).replace(/\n/g, '<br>');
+                }
                 parts.push(`<div class="timeline-content mb-3">${timelineHtml}</div>`);
             }
 
@@ -470,6 +477,18 @@ document.addEventListener('DOMContentLoaded', function() {
             parts.push(`</div>`);
             return parts.join('');
         });
+    }
+
+    // Helper function to escape HTML special characters
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return String(text).replace(/[&<>"']/g, m => map[m]);
     }
 
     // Add event listener
